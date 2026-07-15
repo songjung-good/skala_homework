@@ -44,7 +44,6 @@ pydantic>=2.0.0        # 데이터 타입 및 범위 검증을 위한 Pydantic v
 pandas>=2.0.0          # 데이터 프레임 핸들링 및 포맷 변환
 pyarrow>=12.0.0        # Parquet 파일 포맷 저장을 위한 백엔드 엔진
 pytest>=7.0.0          # 유닛 테스트 프레임워크
-pytest-asyncio>=0.21.0 # 비동기 테스트 함수 지원을 위한 pytest 확장
 ruff>=0.0.270          # 초고속 Python 린터 및 포매터
 ```
 
