@@ -1,13 +1,17 @@
 """
 [종합 실습] 데이터 수집 미니 파이프라인
+API 요청 결과를 검증하고, 에러 발생 시 적절한 메시지를 출력하는 Pydantic v2 모델 정의
 작성일: 2026-07-15
 작성자: 배영환
 변경이력:
   - ver 0.1: API 요청 에러 처리 및 결과 요약 기능 추가
   - ver 0.1.1: REST Countries API(https://restcountries.com/v3.1/alpha/KR > https://countries.dev/alpha/KR) 와 IP-API 요청 시 에러 수정(https -> http)
+  - ver 0.2: Pydantic v2 모델 검증 적용 
 """
 import asyncio
 import httpx
+from pydantic import ValidationError
+from models import OpenMeteoResponse, RestCountriesResponse, IpApiResponse
 
 # API Endpoints 정의
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&hourly=temperature_2m,precipitation_probability&forecast_days=3&timezone=Asia/Seoul"
@@ -62,26 +66,38 @@ async def main():
         print("\n=== 수집 완료 및 결과 요약 ===")
         names = ["Open-Meteo", "RestCountries", "IP-API"]
         
+        # 각 API에 대응하는 Pydantic 모델 매핑
+        model_mapping = {
+            "Open-Meteo": OpenMeteoResponse,
+            "RestCountries": RestCountriesResponse,
+            "IP-API": IpApiResponse
+        }
+
         for name, result in zip(names, results):
             if isinstance(result, Exception):
-                print(f"[{name}] 수집 실패: {result}")
-            else:
-                # 응답 형태에 따른 결과 데이터 요약 출력
-                if name == "Open-Meteo":
-                    # 기온 정보 일부(처음 5개 시간대) 예시 출력
-                    hourly_times = result.get("hourly", {}).get("time", [])[:5]
-                    hourly_temps = result.get("hourly", {}).get("temperature_2m", [])[:5]
-                    print(f"[{name}] 수집 성공 (데이터 수: {len(result.get('hourly', {}).get('time', []))}개)")
-                    print(f"    - 샘플 데이터: {list(zip(hourly_times, hourly_temps))}")
-                elif name == "RestCountries":
-                    # 국가의 공식 이름 예시 출력
-                    country_name = result.get("name", "N/A") if isinstance(result, dict) else "N/A"
-                    print(f"[{name}] 수집 성공 (국가명: {country_name})")
-                elif name == "IP-API":
-                    # 국가 및 도시 정보 예시 출력
-                    country = result.get("country", "N/A")
-                    city = result.get("city", "N/A")
-                    print(f"[{name}] 수집 성공 (지역: {country}, {city})")
+                print(f"[{name}] 수집 단계 실패: {result}")
+                continue
+
+            model_class = model_mapping.get(name)
+            if model_class:
+                try:
+                    # Pydantic v2 validation 수행
+                    validated_data = model_class.model_validate(result)
+                    print(f"[{name}] 데이터 검증 통과!")
+                    
+                    # 검증 완료된 객체의 속성을 간단히 출력하여 확인
+                    if name == "Open-Meteo":
+                        print(f"    - 위치: 위도 {validated_data.latitude}, 경도 {validated_data.longitude}")
+                        print(f"    - 수집된 기온 데이터 수: {len(validated_data.hourly.temperature_2m)}개")
+                    elif name == "RestCountries":
+                        print(f"    - 국가명: {validated_data.name}, 수도: {validated_data.capital}, 인구수: {validated_data.population}")
+                    elif name == "IP-API":
+                        print(f"    - 조회된 IP: {validated_data.query} (지역: {validated_data.country}, {validated_data.city})")
+                except ValidationError as e:
+                    print(f"[{name}] 스키마 검증 실패 (ValidationError 발생):")
+                    print(e)
+                except Exception as e:
+                    print(f"[{name}] 예기치 못한 검증 오류 발생: {e}")
 
 
 if __name__ == "__main__":
