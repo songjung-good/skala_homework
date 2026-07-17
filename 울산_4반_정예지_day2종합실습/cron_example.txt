@@ -1,0 +1,4 @@
+# crontab -e 에 아래와 같이 등록하면 매일 오전 8시에 파이프라인이 자동 실행되고,
+# .env 에 SLACK_WEBHOOK_URL / SMTP_* 값을 채워두면 완료 알림도 함께 발송됩니다.
+#
+# 0 8 * * * cd /path/to/project && /usr/bin/python3 main.py >> logs/cron.log 2>&1
