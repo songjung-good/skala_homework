@@ -1,6 +1,6 @@
 # AI 도구 활용과 개발자 시장 가치 분석 보고서
 
-- 생성 일시: 2026-07-17 17:52:11
+- 생성 일시: 2026-07-22 10:58:07
 - 데이터 출처: 2024 Stack Overflow Developer Survey (샘플, n=60907)
 
 ---
@@ -18,8 +18,8 @@
 
 | 라이브러리 | 로드 시간(초) | 피크 메모리(MB) |
 |---|---|---|
-| Pandas | 1.0368 | 135.01 |
-| Polars | 0.0982 | 0.0 |
+| Pandas | 1.0503 | 135.01 |
+| Polars | 0.1312 | 0.0 |
 
 ---
 
@@ -132,7 +132,7 @@
   (전처리 단계 `preprocessor` = `ColumnTransformer`(범주형: `OneHotEncoder`, 수치형: `StandardScaler`)로,
   학습/추론 시 데이터 누수 없이 하나의 객체로 일관되게 처리됩니다.)
 - 학습/평가 데이터 수: train=17478, test=5827
-- 모델 저장 경로 (`joblib.dump`): `/Users/skala_yh/skala_homework/울산_4반_정예지_day2종합실습/models/model.pkl`
+- 모델 저장 경로 (`joblib.dump`): `/Users/skala_yh/skala_homework/models/model.pkl`
 
 | 지표 | 값 |
 |---|---|
