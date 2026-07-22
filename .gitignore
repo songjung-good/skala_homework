@@ -190,7 +190,6 @@ pip-selfcheck.json
 # Data files (large files)
 **/data/raw/survey_results_public.csv
 **/data/processed/survey_processed.csv
-*.pkl
 **/models/*.pkl
 .DS_Store
 **/.DS_Store
